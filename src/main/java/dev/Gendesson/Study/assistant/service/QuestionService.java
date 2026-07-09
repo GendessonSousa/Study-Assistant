@@ -5,6 +5,7 @@ import dev.Gendesson.Study.assistant.model.QuestionOption;
 import dev.Gendesson.Study.assistant.model.enums.AnalysisStatus;
 import dev.Gendesson.Study.assistant.repository.QuestionRepository;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,8 +15,10 @@ import java.util.Optional;
 public class QuestionService {
 
     private QuestionRepository questionRepository;
+    private final OpenAiService openAiService;
 
-    public QuestionService(QuestionRepository questionRepository) {
+    public QuestionService(OpenAiService openAiService, QuestionRepository questionRepository) {
+        this.openAiService = openAiService;
         this.questionRepository = questionRepository;
     }
 
@@ -58,7 +61,11 @@ public class QuestionService {
         return true;
     }
 
+    public Mono<String> generateAnalysis(Long id){
+        Question question = questionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Questão não encontrada."));
 
-
+        return openAiService.generateAnalysis(question);
+    }
 
 }
