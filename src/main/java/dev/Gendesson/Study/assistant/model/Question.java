@@ -35,6 +35,9 @@ public class Question {
     @Enumerated(EnumType.STRING)
     private AnalysisStatus status;
 
+    @Column(columnDefinition = "TEXT")
+    private String analysis;
+
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuestionOption> questionOptions = new ArrayList<>();
 
@@ -101,5 +104,13 @@ public class Question {
 
     public void setQuestionOptions(List<QuestionOption> questionOptions) {
         this.questionOptions = questionOptions;
+    }
+
+    public String getAnalysis() {
+        return analysis;
+    }
+
+    public void setAnalysis(String analysis) {
+        this.analysis = analysis;
     }
 }

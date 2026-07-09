@@ -65,7 +65,20 @@ public class QuestionService {
         Question question = questionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Questão não encontrada."));
 
-        return openAiService.generateAnalysis(question);
+        if(question.getAnalysis() != null&&
+                !question.getAnalysis().isBlank()){
+            return Mono.just(question.getAnalysis());
+        }
+
+        return openAiService.generateAnalysis(question)
+                .map(analysis -> {
+                    question.setAnalysis(analysis);
+                    question.setStatus(AnalysisStatus.COMPLETED);
+
+                    questionRepository.save(question);
+
+                    return analysis;
+                });
     }
 
 }
