@@ -1,5 +1,8 @@
 package dev.Gendesson.Study.assistant.service;
 
+import dev.Gendesson.Study.assistant.dto.openai.response.Content;
+import dev.Gendesson.Study.assistant.dto.openai.response.OpenAiResponse;
+import dev.Gendesson.Study.assistant.dto.openai.response.Output;
 import dev.Gendesson.Study.assistant.model.Question;
 import dev.Gendesson.Study.assistant.model.QuestionOption;
 import org.springframework.http.HttpHeaders;
@@ -7,6 +10,9 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import dev.Gendesson.Study.assistant.dto.openai.request.InputMessage;
+import dev.Gendesson.Study.assistant.dto.openai.request.OpenAiRequest;
+import dev.Gendesson.Study.assistant.dto.openai.request.Reasoning;
 
 import java.util.List;
 import java.util.Map;
@@ -23,79 +29,67 @@ public class OpenAiService {
     public Mono<String> generateAnalysis(Question question){
         String prompt = buildPrompt(question);
 
-        Map<String, Object> developer = Map.of(
-                "role", "developer",
-                "content", """
-                                Você é um professor especialista em ensino.
-                        
-                                Explique de forma simples.
-                        
-                                Nunca entregue apenas o gabarito.
-                        
-                                Analise todas as alternativas.
-                        
-                                Sempre utilize Markdown.
-                        
-                                Explique como se estivesse ensinando um aluno que acabou de errar uma prova.
-                        
-                                Seja claro, objetivo e didático.
-                                """
-        );
+        InputMessage developer = new InputMessage();
+        developer.setRole("developer");
+        developer.setContent("""
+                Você é um professor especialista em ensino.
+                
+                Explique de forma simples.
+                
+                Nunca entregue apenas o gabarito.
+                
+                Analise todas as alternativas.
+                
+                Sempre utilize Markdown.
+                
+                Explique como se estivesse ensinando um aluno que acabou de errar uma prova.
+                
+                Seja claro, objetivo e didático.
+                """);
 
-        Map<String, Object> user = Map.of(
-                "role", "user",
-                "content", prompt
-        );
+        InputMessage user = new InputMessage();
+        user.setRole("user");
+        user.setContent(prompt);
 
-        Map<String, Object> reasoning = Map.of(
-                "effort", "medium"
-        );
+        Reasoning reasoning = new Reasoning();
+        reasoning.setEffort("medium");
 
-        Map<String, Object> requestBody = Map.of(
-                "model", "gpt-5.4-mini",
-                "reasoning", reasoning,
-                "input", List.of(developer, user)
-
-        );
+        OpenAiRequest request = new OpenAiRequest();
+        request.setModel("gpt-5.4-mini");
+        request.setReasoning(reasoning);
+        request.setInput(List.of(developer, user));
 
         return webClient.post()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
-                .bodyValue(requestBody)
+                .bodyValue(request)
                 .retrieve()
-                .bodyToMono(Map.class)
+                .bodyToMono(OpenAiResponse.class)
                 .map(this::extractResponse);
     }
 
-    private String extractResponse(Map<String, Object> response) {
-
-        List<Map<String, Object>> output =
-                (List<Map<String, Object>>) response.get("output");
-
-        if (output == null) {
-            return "Nenhuma resposta encontrada.";
-        }
+    private String extractResponse(OpenAiResponse response) {
 
         StringBuilder text = new StringBuilder();
 
-        for (Map<String, Object> item : output) {
+        if (response.getOutput() == null) {
+            return "Nenhuma resposta encontrada.";
+        }
 
-            if (!"message".equals(item.get("type"))) {
+        for (Output output : response.getOutput()) {
+            if (!"message".equals(output.getType())) {
                 continue;
             }
 
-            List<Map<String, Object>> content =
-                    (List<Map<String, Object>>) item.get("content");
-
-            if (content == null) {
+            if (output.getContent() == null) {
                 continue;
             }
 
-            for (Map<String, Object> block : content) {
-
-                if ("output_text".equals(block.get("type"))) {
-                    text.append(block.get("text")).append("\n");
+            for (Content content : output.getContent()) {
+                if ("output_text".equals(content.getType())) {
+                    text.append(content.getText()).append("\n");
                 }
+
             }
         }
 
