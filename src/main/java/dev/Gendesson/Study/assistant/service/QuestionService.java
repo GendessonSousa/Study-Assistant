@@ -1,5 +1,9 @@
 package dev.Gendesson.Study.assistant.service;
 
+import dev.Gendesson.Study.assistant.dto.question.request.QuestionOptionRequestDTO;
+import dev.Gendesson.Study.assistant.dto.question.request.QuestionRequestDTO;
+import dev.Gendesson.Study.assistant.dto.question.response.QuestionResponseDTO;
+import dev.Gendesson.Study.assistant.mapper.QuestionMapper;
 import dev.Gendesson.Study.assistant.model.Question;
 import dev.Gendesson.Study.assistant.model.QuestionOption;
 import dev.Gendesson.Study.assistant.model.enums.AnalysisStatus;
@@ -14,43 +18,71 @@ import java.util.Optional;
 @Service
 public class QuestionService {
 
-    private QuestionRepository questionRepository;
+    private final QuestionRepository questionRepository;
     private final OpenAiService openAiService;
+    private final QuestionMapper questionMapper;
 
-    public QuestionService(OpenAiService openAiService, QuestionRepository questionRepository) {
+    public QuestionService(QuestionMapper questionMapper, OpenAiService openAiService, QuestionRepository questionRepository) {
+        this.questionMapper = questionMapper;
         this.openAiService = openAiService;
         this.questionRepository = questionRepository;
     }
 
-    public Question saveQuestion(Question question){
+    public QuestionResponseDTO saveQuestion(QuestionRequestDTO dto){
+        Question question = questionMapper.toEntity(dto);
+
         question.setCreatedAt(LocalDateTime.now());
         question.setStatus(AnalysisStatus.PENDING);
 
-        for (QuestionOption option : question.getQuestionOptions()){
-            option.setQuestion(question);
-        }
+        Question savedQuestion = questionRepository.save(question);
 
-        return questionRepository.save(question);
+        return questionMapper.toResponse(savedQuestion);
     }
 
-    public List<Question> listQuestions(){
-        return questionRepository.findAll();
+    public List<QuestionResponseDTO> listQuestions(){
+        return questionRepository.findAll()
+                .stream()
+                .map(questionMapper::toResponse)
+                .toList();
     }
 
-    public Question listQuestionById(Long id){
-        Optional<Question> questionById = questionRepository.findById(id);
-        return questionById.orElse(null);
+    public QuestionResponseDTO listQuestionById(Long id){
+        return questionRepository.findById(id)
+                .map(questionMapper::toResponse)
+                .orElse(null);
     }
 
-    public Question updateQuestion(Long id, Question questionUpdated){
-        Optional<Question> questionExists = questionRepository.findById(id);
-        if (questionExists.isEmpty()){
+    public QuestionResponseDTO updateQuestion(Long id, QuestionRequestDTO dto){
+        Question question = questionRepository.findById(id)
+                .orElse(null);
+
+        if (question == null){
             return null;
         }
 
-        questionUpdated.setId(id);
+        question.setStatement(dto.getStatement());
+        question.setSubject(dto.getSubject());
+        question.setUserAnswer(dto.getUserAnswer());
+        question.setCorrectAnswer(dto.getCorrectAnswer());
 
-        return questionRepository.save(questionUpdated);
+        question.getQuestionOptions().clear();
+
+        if (dto.getQuestionOptions() != null){
+
+            for (QuestionOptionRequestDTO optionDTO : dto.getQuestionOptions()){
+                QuestionOption option = new QuestionOption();
+
+                option.setLetter(optionDTO.getLetter());
+                option.setText(optionDTO.getText());
+                option.setQuestion(question);
+
+                question.getQuestionOptions().add(option);
+            }
+        }
+
+        Question savedQuestion = questionRepository.save(question);
+
+        return questionMapper.toResponse(savedQuestion);
     }
 
     public boolean deleteQuestion(Long id){

@@ -1,5 +1,7 @@
 package dev.Gendesson.Study.assistant.controller;
 
+import dev.Gendesson.Study.assistant.dto.question.request.QuestionRequestDTO;
+import dev.Gendesson.Study.assistant.dto.question.response.QuestionResponseDTO;
 import dev.Gendesson.Study.assistant.model.Question;
 import dev.Gendesson.Study.assistant.service.QuestionService;
 import org.springframework.http.HttpStatus;
@@ -19,22 +21,22 @@ public class QuestionController {
 
     //POST
     @PostMapping("/create")
-    public ResponseEntity<Question> createQuestion(@RequestBody Question question){
-        Question questionSave = questionService.saveQuestion(question);
-        return ResponseEntity.ok(question);
+    public ResponseEntity<QuestionResponseDTO> createQuestion(@RequestBody QuestionRequestDTO dto){
+        QuestionResponseDTO questionSaved = questionService.saveQuestion(dto);
+        return ResponseEntity.ok(questionSaved);
     }
 
     //GET
     @GetMapping("/list")
-    public ResponseEntity<List<Question>> listQuestions(){
-        List<Question> questions = questionService.listQuestions();
+    public ResponseEntity<List<QuestionResponseDTO>> listQuestions(){
+        List<QuestionResponseDTO> questions = questionService.listQuestions();
         return ResponseEntity.ok(questions);
     }
 
     //GET (ID)
     @GetMapping("/list/{id}")
     public ResponseEntity<?> listQuestionByID(@PathVariable Long id){
-        Question question = questionService.listQuestionById(id);
+        QuestionResponseDTO question = questionService.listQuestionById(id);
 
         if (question==null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -46,15 +48,15 @@ public class QuestionController {
 
     //UPDATE
     @PutMapping("/update/{id}")
-    public ResponseEntity<String> updateQuestionById (@PathVariable Long id, @RequestBody Question questionUpdated){
-        Question question = questionService.updateQuestion(id, questionUpdated);
+    public ResponseEntity<?> updateQuestionById (@PathVariable Long id, @RequestBody QuestionRequestDTO dto){
+        QuestionResponseDTO question = questionService.updateQuestion(id, dto);
 
         if (question == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("A questão de ID " + id + " não foi encontrada!");
         }
 
-        return ResponseEntity.ok("A questão de ID: " + id + " foi atualizada com sucesso!");
+        return ResponseEntity.ok(question);
     }
 
     //DELETE
