@@ -14,4 +14,47 @@ public class QuestionRequestDTO {
     private String subject;
 
     private List<QuestionOptionRequestDTO> questionOptions;
+
+    public QuestionRequestDTO() {
+    }
+
+    public String getStatement() {
+        return statement;
+    }
+
+    public void setStatement(String statement) {
+        this.statement = statement;
+    }
+
+    public AnswerOption getUserAnswer() {
+        return userAnswer;
+    }
+
+    public void setUserAnswer(AnswerOption userAnswer) {
+        this.userAnswer = userAnswer;
+    }
+
+    public AnswerOption getCorrectAnswer() {
+        return correctAnswer;
+    }
+
+    public void setCorrectAnswer(AnswerOption correctAnswer) {
+        this.correctAnswer = correctAnswer;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public List<QuestionOptionRequestDTO> getQuestionOptions() {
+        return questionOptions;
+    }
+
+    public void setQuestionOptions(List<QuestionOptionRequestDTO> questionOptions) {
+        this.questionOptions = questionOptions;
+    }
 }
