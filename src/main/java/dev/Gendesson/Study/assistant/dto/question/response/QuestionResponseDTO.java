@@ -4,6 +4,7 @@ import dev.Gendesson.Study.assistant.model.enums.AnalysisStatus;
 import dev.Gendesson.Study.assistant.model.enums.AnswerOption;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class QuestionResponseDTO {
     private Long id;

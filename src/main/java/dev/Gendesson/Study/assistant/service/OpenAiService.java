@@ -1,21 +1,19 @@
 package dev.Gendesson.Study.assistant.service;
 
-import dev.Gendesson.Study.assistant.dto.openai.response.Content;
-import dev.Gendesson.Study.assistant.dto.openai.response.OpenAiResponse;
-import dev.Gendesson.Study.assistant.dto.openai.response.Output;
+import dev.Gendesson.Study.assistant.dto.openai.response.ContentDTO;
+import dev.Gendesson.Study.assistant.dto.openai.response.OpenAiResponseDTO;
+import dev.Gendesson.Study.assistant.dto.openai.response.OutputDTO;
 import dev.Gendesson.Study.assistant.model.Question;
-import dev.Gendesson.Study.assistant.model.QuestionOption;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-import dev.Gendesson.Study.assistant.dto.openai.request.InputMessage;
-import dev.Gendesson.Study.assistant.dto.openai.request.OpenAiRequest;
-import dev.Gendesson.Study.assistant.dto.openai.request.Reasoning;
+import dev.Gendesson.Study.assistant.dto.openai.request.InputMessageDTO;
+import dev.Gendesson.Study.assistant.dto.openai.request.OpenAiRequestDTO;
+import dev.Gendesson.Study.assistant.dto.openai.request.ReasoningDTO;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class OpenAiService {
@@ -31,7 +29,7 @@ public class OpenAiService {
     public Mono<String> generateAnalysis(Question question){
         String prompt = promptBuilderService.buildQuestionAnalysisPrompt(question);
 
-        InputMessage developer = new InputMessage();
+        InputMessageDTO developer = new InputMessageDTO();
         developer.setRole("developer");
         developer.setContent("""
                 Você é um professor especialista em ensino.
@@ -49,14 +47,14 @@ public class OpenAiService {
                 Seja claro, objetivo e didático.
                 """);
 
-        InputMessage user = new InputMessage();
+        InputMessageDTO user = new InputMessageDTO();
         user.setRole("user");
         user.setContent(prompt);
 
-        Reasoning reasoning = new Reasoning();
+        ReasoningDTO reasoning = new ReasoningDTO();
         reasoning.setEffort("medium");
 
-        OpenAiRequest request = new OpenAiRequest();
+        OpenAiRequestDTO request = new OpenAiRequestDTO();
         request.setModel("gpt-5.4-mini");
         request.setReasoning(reasoning);
         request.setInput(List.of(developer, user));
@@ -66,11 +64,11 @@ public class OpenAiService {
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
                 .bodyValue(request)
                 .retrieve()
-                .bodyToMono(OpenAiResponse.class)
+                .bodyToMono(OpenAiResponseDTO.class)
                 .map(this::extractResponse);
     }
 
-    private String extractResponse(OpenAiResponse response) {
+    private String extractResponse(OpenAiResponseDTO response) {
 
         StringBuilder text = new StringBuilder();
 
@@ -78,7 +76,7 @@ public class OpenAiService {
             return "Nenhuma resposta encontrada.";
         }
 
-        for (Output output : response.getOutput()) {
+        for (OutputDTO output : response.getOutput()) {
             if (!"message".equals(output.getType())) {
                 continue;
             }
@@ -87,9 +85,9 @@ public class OpenAiService {
                 continue;
             }
 
-            for (Content content : output.getContent()) {
-                if ("output_text".equals(content.getType())) {
-                    text.append(content.getText()).append("\n");
+            for (ContentDTO contentDTO : output.getContent()) {
+                if ("output_text".equals(contentDTO.getType())) {
+                    text.append(contentDTO.getText()).append("\n");
                 }
 
             }

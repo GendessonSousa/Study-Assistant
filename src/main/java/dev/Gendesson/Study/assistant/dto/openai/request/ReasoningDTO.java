@@ -1,6 +1,6 @@
 package dev.Gendesson.Study.assistant.dto.openai.request;
 
-public class Reasoning {
+public class ReasoningDTO {
     private String effort;
 
     public String getEffort() {

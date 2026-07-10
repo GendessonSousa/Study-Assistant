@@ -1,6 +1,6 @@
 package dev.Gendesson.Study.assistant.dto.openai.request;
 
-public class InputMessage {
+public class InputMessageDTO {
     private String role;
     private String content;
 

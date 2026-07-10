@@ -1,6 +1,6 @@
 package dev.Gendesson.Study.assistant.dto.openai.response;
 
-public class Content {
+public class ContentDTO {
     private String type;
     private String text;
 

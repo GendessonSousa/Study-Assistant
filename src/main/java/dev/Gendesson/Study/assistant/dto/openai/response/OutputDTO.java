@@ -2,9 +2,9 @@ package dev.Gendesson.Study.assistant.dto.openai.response;
 
 import java.util.List;
 
-public class Output {
+public class OutputDTO {
     private String type;
-    private List<Content> content;
+    private List<ContentDTO> content;
 
     public String getType() {
         return type;
@@ -14,11 +14,11 @@ public class Output {
         this.type = type;
     }
 
-    public List<Content> getContent() {
+    public List<ContentDTO> getContent() {
         return content;
     }
 
-    public void setContent(List<Content> content) {
-        this.content = content;
+    public void setContent(List<ContentDTO> contentDTO) {
+        this.content = contentDTO;
     }
 }

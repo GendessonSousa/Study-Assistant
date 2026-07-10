@@ -2,10 +2,10 @@ package dev.Gendesson.Study.assistant.dto.openai.request;
 
 import java.util.List;
 
-public class OpenAiRequest {
+public class OpenAiRequestDTO {
     private String model;
-    private Reasoning reasoning;
-    private List<InputMessage> input;
+    private ReasoningDTO reasoning;
+    private List<InputMessageDTO> input;
 
     public String getModel() {
         return model;
@@ -15,19 +15,19 @@ public class OpenAiRequest {
         this.model = model;
     }
 
-    public Reasoning getReasoning() {
+    public ReasoningDTO getReasoning() {
         return reasoning;
     }
 
-    public void setReasoning(Reasoning reasoning) {
+    public void setReasoning(ReasoningDTO reasoning) {
         this.reasoning = reasoning;
     }
 
-    public List<InputMessage> getInput() {
+    public List<InputMessageDTO> getInput() {
         return input;
     }
 
-    public void setInput(List<InputMessage> input) {
+    public void setInput(List<InputMessageDTO> input) {
         this.input = input;
     }
 }
