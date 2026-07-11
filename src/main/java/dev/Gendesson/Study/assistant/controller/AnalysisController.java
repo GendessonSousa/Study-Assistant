@@ -1,5 +1,6 @@
 package dev.Gendesson.Study.assistant.controller;
 
+import dev.Gendesson.Study.assistant.dto.analysis.response.AnalysisResponseDTO;
 import dev.Gendesson.Study.assistant.service.OpenAiService;
 import dev.Gendesson.Study.assistant.service.QuestionService;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class AnalysisController {
     }
 
     @PostMapping("/question/{id}/analysis")
-    public Mono<ResponseEntity<String>> generateAnalysis(@PathVariable Long id) {
+    public Mono<ResponseEntity<AnalysisResponseDTO>> generateAnalysis(@PathVariable Long id) {
         return questionService.generateAnalysis(id)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());

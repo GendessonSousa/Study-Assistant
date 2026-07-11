@@ -1,5 +1,6 @@
 package dev.Gendesson.Study.assistant.service;
 
+import dev.Gendesson.Study.assistant.dto.analysis.response.AnalysisResponseDTO;
 import dev.Gendesson.Study.assistant.dto.question.request.QuestionOptionRequestDTO;
 import dev.Gendesson.Study.assistant.dto.question.request.QuestionRequestDTO;
 import dev.Gendesson.Study.assistant.dto.question.response.QuestionResponseDTO;
@@ -93,13 +94,13 @@ public class QuestionService {
         return true;
     }
 
-    public Mono<String> generateAnalysis(Long id){
+    public Mono<AnalysisResponseDTO> generateAnalysis(Long id){
         Question question = questionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Questão não encontrada."));
 
-        if(question.getAnalysis() != null&&
+        if(question.getAnalysis() != null &&
                 !question.getAnalysis().isBlank()){
-            return Mono.just(question.getAnalysis());
+            return Mono.just(buildAnalysisResponse(question));
         }
 
         return openAiService.generateAnalysis(question)
@@ -109,8 +110,15 @@ public class QuestionService {
 
                     questionRepository.save(question);
 
-                    return analysis;
+                    return buildAnalysisResponse(question);
                 });
     }
 
+    private AnalysisResponseDTO buildAnalysisResponse(Question question){
+        return new AnalysisResponseDTO(
+                question.getId(),
+                question.getStatus(),
+                question.getAnalysis()
+        );
+    }
 }
