@@ -4,12 +4,10 @@ import dev.Gendesson.Study.assistant.dto.analysis.response.AnalysisResponseDTO;
 import dev.Gendesson.Study.assistant.service.OpenAiService;
 import dev.Gendesson.Study.assistant.service.QuestionService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 public class AnalysisController {
     private QuestionService questionService;
