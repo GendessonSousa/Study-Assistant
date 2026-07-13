@@ -1,15 +1,21 @@
 import { useState } from "react";
-import { deleteQuestion, generateAnalysis } from "../services/questionService";
+import {
+    deleteQuestion,
+    generateAnalysis,
+    regenerateAnalysis
+} from "../services/questionService";
 
 function QuestionList({
     questions,
     onRefresh,
     onAnalysisGenerated,
-    loading,
-    setLoading,
     onEdit
 }) {
-    const [loadingQuestionId, setLoadingQuestionId] = useState(null);
+
+    const [loading, setLoading] = useState({
+        id: null,
+        action: null
+    });
 
     async function handleDelete(id) {
 
@@ -37,7 +43,10 @@ function QuestionList({
 
         try {
 
-            setLoadingQuestionId(id);
+            setLoading({
+                id,
+                action: "analysis"
+            });
 
             const analysis = await generateAnalysis(id);
 
@@ -51,9 +60,42 @@ function QuestionList({
 
         } finally {
 
-            setLoadingQuestionId(null);
+            setLoading({
+                id: null,
+                action: null
+            });
 
         }
+    }
+
+    async function handleRegenerateAnalysis(id) {
+
+        try {
+
+            setLoading({
+                id,
+                action: "regenerate"
+            });
+
+            const analysis = await regenerateAnalysis(id);
+
+            onAnalysisGenerated(analysis.analysis);
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert("Erro ao gerar nova análise.");
+
+        } finally {
+
+            setLoading({
+                id: null,
+                action: null
+            });
+
+        }
+
     }
 
     return (
@@ -80,15 +122,17 @@ function QuestionList({
                         <hr />
 
                         {
-                            question.questionOptions.map(option => (
+                            question.questionOptions
+                                .filter(option => option.text && option.text.trim() !== "")
+                                .map(option => (
 
-                                <p key={option.letter}>
+                                    <p key={option.letter}>
 
-                                    <strong>{option.letter})</strong> {option.text}
+                                        <strong>{option.letter})</strong> {option.text}
 
-                                </p>
+                                    </p>
 
-                            ))
+                                ))
                         }
 
                         <hr />
@@ -109,12 +153,28 @@ function QuestionList({
 
                             <button
                                 className="analyze"
-                                disabled={loadingQuestionId === question.id}
+                                disabled={loading.id === question.id}
                                 onClick={() => handleAnalysis(question.id)}
                             >
-                                {loadingQuestionId === question.id
-                                    ? "Gerando..."
-                                    : "🤖 Analisar"}
+                                {
+                                    loading.id === question.id &&
+                                        loading.action === "analysis"
+                                        ? "Gerando..."
+                                        : "🤖 Analisar"
+                                }
+                            </button>
+
+                            <button
+                                className="regenerate"
+                                disabled={loading.id === question.id}
+                                onClick={() => handleRegenerateAnalysis(question.id)}
+                            >
+                                {
+                                    loading.id === question.id &&
+                                        loading.action === "regenerate"
+                                        ? "Gerando..."
+                                        : "🔄 Nova análise"
+                                }
                             </button>
 
                             <button

@@ -31,3 +31,13 @@ export async function updateQuestion(id, question){
     return response.data;
 
 }
+
+export async function regenerateAnalysis(id){
+
+    const response = await axios.post(
+        `${API}/${id}/analysis/regenerate`
+    );
+
+    return response.data;
+
+}

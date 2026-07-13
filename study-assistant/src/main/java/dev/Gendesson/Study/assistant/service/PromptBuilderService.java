@@ -9,14 +9,25 @@ public class PromptBuilderService {
     public String buildQuestionAnalysisPrompt(Question question) {
         StringBuilder prompt = new StringBuilder();
         prompt.append("""
-                Analise a seguinte questão.
-                Questão:
+                Você receberá uma questão de múltipla escolha respondida por um aluno.
+                
+                Seu objetivo é ensinar o conteúdo da questão, e não apenas informar o gabarito.
+                
+                Considere que o aluno deseja entender o assunto profundamente para não errar novamente.
+                
+                ## Questão
+                
                 """);
         prompt.append(question.getStatement()).append("\n\n");
 
         prompt.append("Alternativas:\n");
 
         for (QuestionOption option : question.getQuestionOptions()) {
+
+            if (option.getText() == null || option.getText().isBlank()) {
+                continue;
+            }
+
             prompt.append(option.getLetter())
                     .append(") ")
                     .append(option.getText())
@@ -34,19 +45,18 @@ public class PromptBuilderService {
                 .append("\n\n");
 
         prompt.append("""
-                Explique:
+                Instruções:
                 
-                1. Por que a resposta escolhida está incorreta.
+                - Analise apenas as alternativas apresentadas acima.
+                - Não invente alternativas que não existam.
+                - Explique primeiro o conceito principal cobrado pela questão.
+                - Explique por que o aluno provavelmente escolheu a alternativa incorreta.
+                - Explique por que a alternativa correta está correta.
+                - Analise cada alternativa individualmente.
+                - Ao final, indique quais assuntos o aluno deve revisar.
+                - Finalize com uma dica prática para identificar questões semelhantes.
                 
-                2. Por que a alternativa correta é a certa.
-                
-                3. Explique o conteúdo teórico necessário para acertar essa questão.
-                
-                4. Analise cada alternativa, dizendo por que está certa ou errada.
-                
-                5. Dê uma dica prática para que o aluno não cometa esse erro novamente.
-                
-                Seja extremamente didático e utilize Markdown.
+                Organize toda a resposta utilizando Markdown.
                 """);
 
         return prompt.toString();

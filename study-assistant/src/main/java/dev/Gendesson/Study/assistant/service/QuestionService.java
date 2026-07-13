@@ -121,4 +121,22 @@ public class QuestionService {
                 question.getAnalysis()
         );
     }
+
+    public Mono<AnalysisResponseDTO> regenerateAnalysis(Long id){
+
+        Question question = questionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Questão não encontrada."));
+
+        return openAiService.generateAnalysis(question)
+                .map(analysis -> {
+
+                    question.setAnalysis(analysis);
+                    question.setStatus(AnalysisStatus.COMPLETED);
+
+                    questionRepository.save(question);
+
+                    return buildAnalysisResponse(question);
+
+                });
+    }
 }

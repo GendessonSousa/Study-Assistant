@@ -17,8 +17,11 @@ function AnalysisPanel({ analysis }) {
                 }
 
             </div>
-
+                
+        
         </div>
+
+        
 
     );
 

@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import QuestionForm from "../components/QuestionForm";
 import QuestionList from "../components/QuestionList";
 import AnalysisPanel from "../components/AnalysisPanel";
 import "../App.css";
 import { listQuestions } from "../services/questionService";
+import Dashboard from "../components/Dashboard";
 
 
 function Home() {
@@ -15,6 +16,8 @@ function Home() {
 
     const [questionToEdit, setQuestionToEdit] = useState(null);
 
+    const analysisRef = useRef(null);
+
 
     useEffect(() => {
 
@@ -22,6 +25,21 @@ function Home() {
 
     }, []);
 
+
+    useEffect(() => {
+
+        if (!analysis) return;
+
+        setTimeout(() => {
+
+            analysisRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+        }, 100);
+
+    }, [analysis]);
 
     async function loadQuestions() {
 
@@ -40,6 +58,7 @@ function Home() {
                 📚 Study Assistant
             </h1>
 
+            <Dashboard questions={questions} />
 
             <div className="content">
 
@@ -71,7 +90,10 @@ function Home() {
             </div>
 
 
-            <div className="card analysis">
+            <div
+                ref={analysisRef}
+                className="card analysis"
+            >
 
                 <AnalysisPanel
                     analysis={analysis}
